@@ -4,6 +4,7 @@ namespace common\models;
 
 use common\models\query\PageQuery;
 use Yii;
+use yii\behaviors\SluggableBehavior;
 use yii\db\ActiveRecord;
 
 /**
@@ -25,6 +26,9 @@ use yii\db\ActiveRecord;
  */
 class Page extends ActiveRecord
 {
+    const STATUS_DRAFT = 0;
+    const STATUS_ACTIVE = 1;
+
     /**
      * @inheritdoc
      */
@@ -40,7 +44,7 @@ class Page extends ActiveRecord
     {
         return [
             [['parent_id', 'status'], 'integer'],
-            [['title', 'slug', 'content', 'status'], 'required'],
+            [['title', 'seo_h1', 'content', 'status'], 'required'],
             [['content', 'seo_content'], 'string'],
             [['title', 'slug', 'seo_h1', 'seo_title'], 'string', 'max' => 255],
             [['parent_id'], 'exist', 'skipOnError' => true, 'targetClass' => Page::className(), 'targetAttribute' => ['parent_id' => 'id']],
@@ -54,7 +58,7 @@ class Page extends ActiveRecord
     {
         return [
             'id' => 'ID',
-            'parent_id' => 'Parent ID',
+            'parent_id' => 'Parent',
             'title' => 'Title',
             'slug' => 'Slug',
             'content' => 'Content',
@@ -62,6 +66,18 @@ class Page extends ActiveRecord
             'seo_title' => 'Seo Title',
             'seo_content' => 'Seo Content',
             'status' => 'Status',
+        ];
+    }
+
+    public function behaviors()
+    {
+        return [
+            [
+                'class' => SluggableBehavior::className(),
+                'slugAttribute' => 'slug',
+                'attribute' => 'seo_h1',
+                'ensureUnique' => true,
+            ],
         ];
     }
 
